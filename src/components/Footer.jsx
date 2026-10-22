@@ -9,7 +9,8 @@ import {
   User, 
   RotateCcw, 
   Truck,
-  Sparkles
+  Sparkles,
+  ShieldCheck
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
