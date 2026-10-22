@@ -1,0 +1,11 @@
+/**
+ * Sree Ethnic Finds - Boutique Stylesheet
+ * 
+ * Active styling is powered by Tailwind CSS in src/index.css and tailwind.config.js.
+ * Soft pastel palette:
+ * - Pastel Pink: #FFF5F7, #FFE6EC, #FAD2E1, #EE7B99
+ * - Deep Rose / Wine: #961E42, #561026
+ * - Warm Cream & Beige: #FFFDF9, #FAF6F0, #F5EBE0
+ */
+
+@import "./src/index.css";
