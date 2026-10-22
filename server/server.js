@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { connectDB } from './config/db.js';
+import fs from 'fs';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 
@@ -41,11 +42,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Serve frontend in production build if dist exists
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(rootDir, 'dist')));
+// Serve frontend build if dist exists or in production
+const distPath = path.join(rootDir, 'dist');
+if (fs.existsSync(distPath) || process.env.NODE_ENV === 'production') {
+  app.use(express.static(distPath));
   app.get('*', (req, res) => {
-    res.sendFile(path.join(rootDir, 'dist', 'index.html'));
+    res.sendFile(path.join(distPath, 'index.html'));
   });
 }
 

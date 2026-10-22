@@ -12,7 +12,8 @@ import {
   ArrowRight, 
   Printer, 
   ShoppingBag,
-  Sparkles
+  Sparkles,
+  MessageCircle
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
@@ -196,13 +197,25 @@ export default function CheckoutModal() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <a
+                href={`https://wa.me/917012897623?text=${encodeURIComponent(
+                  `Hello Sree Ethnic Finds! I just placed an order:\n\nOrder ID: #${lastPlacedOrder.orderId}\nCustomer: ${lastPlacedOrder.customer.name}\nPhone: ${lastPlacedOrder.customer.phone}\nTotal: ₹${lastPlacedOrder.totalAmount}\nPayment: ${lastPlacedOrder.paymentMethod}\nAddress: ${lastPlacedOrder.customer.address}, ${lastPlacedOrder.customer.city}, ${lastPlacedOrder.customer.state} - ${lastPlacedOrder.customer.pincode}`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-5 py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-semibold rounded-full flex items-center gap-1.5 shadow-md transition-all"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                Confirm on WhatsApp
+              </a>
+
               <button
                 onClick={handlePrint}
-                className="px-5 py-2.5 bg-white border border-[#F4ACB7] hover:bg-[#FFE6EC]/40 text-[#561026] text-xs font-semibold rounded-full flex items-center gap-1.5 transition-colors"
+                className="px-5 py-2.5 bg-white border border-[#F4ACB7] hover:bg-[#FFE6EC]/40 text-[#561026] text-xs font-semibold rounded-full flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Printer className="w-3.5 h-3.5 text-[#EE7B99]" />
-                Print Order Receipt
+                Print Receipt
               </button>
 
               <button
@@ -210,7 +223,7 @@ export default function CheckoutModal() {
                   setLastPlacedOrder(null);
                   setIsCheckoutOpen(false);
                 }}
-                className="px-6 py-2.5 bg-[#561026] hover:bg-[#751734] text-white text-xs font-semibold rounded-full shadow-md transition-colors"
+                className="px-6 py-2.5 bg-[#561026] hover:bg-[#751734] text-white text-xs font-semibold rounded-full shadow-md transition-colors cursor-pointer"
               >
                 Continue Shopping
               </button>
