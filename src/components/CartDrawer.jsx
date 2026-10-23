@@ -26,7 +26,9 @@ export default function CartDrawer() {
     appliedCoupon, 
     applyCouponCode, 
     removeCoupon,
-    setIsCheckoutOpen
+    setIsCheckoutOpen,
+    currentCustomer,
+    openAuthModal
   } = useStore();
 
   const [couponInput, setCouponInput] = useState('');
@@ -262,6 +264,19 @@ export default function CartDrawer() {
               </div>
             </div>
 
+            {/* Customer Prompt if not logged in */}
+            {!currentCustomer && (
+              <div className="text-[11px] text-[#892B42] bg-[#FFE6EC]/60 p-2.5 rounded-2xl border border-[#EE7B99]/30 flex items-center justify-between">
+                <span>Save your address for 1-click checkout:</span>
+                <button
+                  onClick={() => { setIsCartOpen(false); openAuthModal('login'); }}
+                  className="font-bold underline text-[#561026] hover:text-[#892B42] cursor-pointer"
+                >
+                  Sign In / Register
+                </button>
+              </div>
+            )}
+
             {/* Checkout Action */}
             <button
               onClick={handleProceedToCheckout}
@@ -274,7 +289,7 @@ export default function CartDrawer() {
             {/* Prototype Notice */}
             <div className="text-[10px] text-center text-[#7A6B6B] flex items-center justify-center gap-1">
               <ShieldCheck className="w-3 h-3 text-[#2B9348]" />
-              <span>Safe student checkout • No credit card required (COD/UPI demo)</span>
+              <span>Online Transfer to +91 70128 97623 • WhatsApp DM confirmation</span>
             </div>
 
           </div>

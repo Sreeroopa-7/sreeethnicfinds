@@ -1,13 +1,13 @@
 import React from 'react';
-import { 
-  Instagram, 
-  MessageCircle, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Heart, 
-  User, 
-  RotateCcw, 
+import {
+  Instagram,
+  MessageCircle,
+  Mail,
+  Phone,
+  MapPin,
+  Heart,
+  User,
+  RotateCcw,
   Truck,
   Sparkles,
   ShieldCheck
@@ -19,11 +19,11 @@ export default function Footer({ onNavigate }) {
 
   return (
     <footer className="bg-[#FAF6F0] border-t border-[#F4ACB7]/40 text-[#5C4D4D] pt-14 pb-8">
-      
+
       {/* Top 3 Assurance Pills */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-6 sm:p-8 rounded-3xl border border-[#F4ACB7]/30 shadow-xs">
-          
+
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-[#FFE6EC] flex items-center justify-center text-[#D94B73] flex-shrink-0">
               <Truck className="w-6 h-6" />
@@ -60,7 +60,7 @@ export default function Footer({ onNavigate }) {
       {/* Main Footer Links & Info */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 pb-12 border-b border-[#F4ACB7]/30">
-          
+
           {/* Brand Info (2 cols on lg) */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2">

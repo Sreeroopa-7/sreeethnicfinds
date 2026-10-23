@@ -6,8 +6,9 @@ import {
   Menu, 
   X, 
   User, 
-  Sparkles,
-  PhoneCall
+  Sparkles, 
+  PhoneCall,
+  Settings
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
@@ -22,7 +23,9 @@ export default function Navbar({ onNavigate }) {
     isAdminLoggedIn,
     searchQuery,
     setSearchQuery,
-    setSelectedCategory
+    setSelectedCategory,
+    currentCustomer,
+    openAuthModal
   } = useStore();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -160,20 +163,39 @@ export default function Navbar({ onNavigate }) {
               </span>
             </button>
 
-            {/* Profile / Boutique Manager Button */}
+            {/* Customer Account Button (Sign In / Sign Up / My Account) */}
+            {currentCustomer ? (
+              <button
+                onClick={() => openAuthModal('profile')}
+                className="flex items-center gap-1.5 bg-[#FFF0F4] hover:bg-[#FFE6EC] text-[#561026] px-3 py-1.5 rounded-full border border-[#F4ACB7]/50 text-xs font-semibold shadow-xs transition-all cursor-pointer"
+                title="My Account & Saved Address"
+              >
+                <div className="w-5 h-5 rounded-full bg-[#D94B73] text-white flex items-center justify-center text-[10px] font-bold">
+                  {currentCustomer.name.charAt(0).toUpperCase()}
+                </div>
+                <span className="hidden sm:inline max-w-[90px] truncate">
+                  {currentCustomer.name.split(' ')[0]}
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={() => openAuthModal('login')}
+                className="flex items-center gap-1.5 text-[#561026] hover:bg-[#FFE6EC]/60 px-3 py-1.5 rounded-full border border-[#F4ACB7]/50 text-xs font-semibold transition-all cursor-pointer"
+                title="Customer Login / Sign Up"
+              >
+                <User className="w-4 h-4 text-[#D94B73]" />
+                <span className="hidden sm:inline">Sign In</span>
+              </button>
+            )}
+
+            {/* Boutique Admin Console Key Button */}
             <button
               onClick={() => setIsAdminOpen(true)}
-              className="p-2 rounded-full text-[#961E42] hover:text-[#561026] hover:bg-[#FFE6EC]/60 transition-colors flex items-center gap-1.5 text-xs font-semibold border border-[#F4ACB7]/40 relative"
-              title="Boutique Profile & Store Manager"
-              aria-label="Profile"
+              className="p-2 rounded-full text-[#961E42]/80 hover:text-[#561026] hover:bg-[#FFE6EC]/50 transition-colors"
+              title="Boutique Manager (Orders & Stock)"
+              aria-label="Boutique Manager"
             >
-              <div className="relative flex items-center justify-center">
-                <User className="w-4 h-4 text-[#D94B73]" />
-                {isAdminLoggedIn && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full border border-white" />
-                )}
-              </div>
-              <span className="hidden md:inline">Profile</span>
+              <Settings className="w-4 h-4 text-[#961E42]" />
             </button>
 
           </div>
@@ -193,15 +215,42 @@ export default function Navbar({ onNavigate }) {
                 {link.name}
               </button>
             ))}
-            <div className="pt-3 border-t border-[#F4ACB7]/20 flex justify-between items-center px-4">
-              <button
-                onClick={() => { setIsMobileMenuOpen(false); setIsAdminOpen(true); }}
-                className="inline-flex items-center gap-2 text-xs font-semibold text-[#892B42] bg-[#FFE6EC] px-3.5 py-1.5 rounded-full"
-              >
-                <User className="w-4 h-4 text-[#D94B73]" />
-                Profile
-              </button>
-              <span className="text-[11px] text-[#961E42]/70">Support: WhatsApp Ready</span>
+
+            <div className="pt-3 border-t border-[#F4ACB7]/20 flex flex-col gap-2 px-2">
+              {currentCustomer ? (
+                <button
+                  onClick={() => { setIsMobileMenuOpen(false); openAuthModal('profile'); }}
+                  className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#FFE6EC]/60 text-xs font-semibold text-[#561026]"
+                >
+                  <span className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-[#D94B73]" />
+                    My Account ({currentCustomer.name})
+                  </span>
+                  <span className="text-[10px] text-[#2B9348] font-bold">Saved Address</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => { setIsMobileMenuOpen(false); openAuthModal('login'); }}
+                  className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#FFE6EC]/60 text-xs font-semibold text-[#561026]"
+                >
+                  <span className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-[#D94B73]" />
+                    Customer Sign In / Sign Up
+                  </span>
+                  <span className="text-[10px] text-[#892B42] font-bold">Save Address</span>
+                </button>
+              )}
+              
+              <div className="flex justify-between items-center px-1 pt-1">
+                <button
+                  onClick={() => { setIsMobileMenuOpen(false); setIsAdminOpen(true); }}
+                  className="text-[11px] text-[#892B42] hover:underline font-medium flex items-center gap-1"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  Boutique Store Manager
+                </button>
+                <span className="text-[10px] text-[#961E42]/70">Support: WhatsApp</span>
+              </div>
             </div>
           </div>
         </div>

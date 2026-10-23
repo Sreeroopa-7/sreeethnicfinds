@@ -87,7 +87,7 @@ export default function AdminDashboard() {
     selectedColor: 'Standard',
     quantity: 1,
     unitPrice: products[0]?.price || 399,
-    paymentMethod: 'Cash on Delivery (COD) [Direct Order]',
+    paymentMethod: 'Online Transfer (+91 70128 97623 / WhatsApp DM)',
     deliveryNotes: 'Order received via WhatsApp (+91 70128 97623)'
   });
 
@@ -233,7 +233,7 @@ export default function AdminDashboard() {
       selectedColor: 'Standard',
       quantity: 1,
       unitPrice: products[0]?.price || 399,
-      paymentMethod: 'Cash on Delivery (COD) [Direct Order]',
+      paymentMethod: 'Online Transfer (+91 70128 97623 / WhatsApp DM)',
       deliveryNotes: 'Order received via WhatsApp (+91 70128 97623)'
     });
 
@@ -854,8 +854,7 @@ export default function AdminDashboard() {
                         onChange={(e) => setOrderForm({ ...orderForm, paymentMethod: e.target.value })}
                         className="w-full px-3 py-2 rounded-xl border border-[#F4ACB7] bg-white"
                       >
-                        <option value="Cash on Delivery (COD)">Cash on Delivery (COD)</option>
-                        <option value="UPI Payment Received (GPay/PhonePe)">UPI Payment Received (GPay/PhonePe)</option>
+                        <option value="Online Transfer (+91 70128 97623 / WhatsApp DM)">Online Transfer (+91 70128 97623 / WhatsApp DM)</option>
                         <option value="Direct In-Store Cash">Direct In-Store Cash</option>
                       </select>
                     </div>

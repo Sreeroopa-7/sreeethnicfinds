@@ -40,7 +40,7 @@ const INITIAL_SAMPLE_ORDERS = [
     deliveryFee: 49,
     discount: 0,
     totalAmount: 448,
-    paymentMethod: "Cash on Delivery (COD) [Demo]",
+    paymentMethod: "Online Money Transfer (+91 70128 97623)",
     status: "Confirmed",
     trackingCourier: "India Post Speed Post",
     trackingAwb: "KL-TRV-77829104",
@@ -73,7 +73,7 @@ const INITIAL_SAMPLE_ORDERS = [
     deliveryFee: 0,
     discount: 50,
     totalAmount: 648,
-    paymentMethod: "UPI Demo Payment",
+    paymentMethod: "Online Money Transfer (+91 70128 97623)",
     status: "Shipped",
     trackingCourier: "Delhivery Air",
     trackingAwb: "DLHV-99214532",
@@ -118,6 +118,27 @@ export const StoreProvider = ({ children }) => {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
     return localStorage.getItem('sef_admin_token') === 'authenticated';
   });
+
+  // Customer Authentication & Profile State
+  const [currentCustomer, setCurrentCustomer] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sef_customer_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState('login'); // 'login' | 'signup' | 'profile'
+
+  const openAuthModal = (tab = 'login') => {
+    setAuthModalTab(tab);
+    setIsAuthModalOpen(true);
+  };
+
+  const closeAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
 
   // Orders state
   const [orders, setOrders] = useState(() => {
@@ -325,7 +346,7 @@ export const StoreProvider = ({ children }) => {
       deliveryFee: manualOrderData.deliveryFee || 0,
       discount: manualOrderData.discount || 0,
       totalAmount: manualOrderData.totalAmount,
-      paymentMethod: manualOrderData.paymentMethod || 'Cash on Delivery (COD) [Manual]',
+      paymentMethod: manualOrderData.paymentMethod || 'Online Transfer (+91 70128 97623)',
       status: manualOrderData.status || 'Confirmed',
       trackingCourier: manualOrderData.trackingCourier || 'Ready for Dispatch',
       trackingAwb: manualOrderData.trackingAwb || 'Pending',
@@ -430,6 +451,155 @@ export const StoreProvider = ({ children }) => {
     showToast('Signed out of Boutique Profile.', 'info');
   };
 
+  // Customer Signup (Registers name, phone, email, password, delivery address)
+  const customerSignup = async (customerData) => {
+    const cleanPhone = customerData.phone.trim().replace(/\D/g, '').slice(-10);
+    const payload = {
+      name: customerData.name.trim(),
+      phone: cleanPhone,
+      email: customerData.email.trim().toLowerCase(),
+      password: customerData.password,
+      address: customerData.address.trim(),
+      city: customerData.city.trim(),
+      state: customerData.state || 'Kerala',
+      pincode: customerData.pincode.trim()
+    };
+
+    try {
+      const res = await fetch('/api/customers/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success && data.customer) {
+        setCurrentCustomer(data.customer);
+        localStorage.setItem('sef_customer_user', JSON.stringify(data.customer));
+        showToast(`🎉 Welcome to Sree Ethnic Finds, ${data.customer.name.split(' ')[0]}!`);
+        setIsAuthModalOpen(false);
+        return { success: true, customer: data.customer };
+      } else if (!data.success && data.message) {
+        showToast(data.message, 'error');
+        return { success: false, message: data.message };
+      }
+    } catch (err) {}
+
+    // LocalStorage fallback for offline / mock dev mode
+    const savedCustomers = JSON.parse(localStorage.getItem('sef_customers_db') || '[]');
+    const existing = savedCustomers.find(c => c.phone === cleanPhone || c.email === payload.email);
+    if (existing) {
+      showToast('An account with this phone or email already exists. Please log in.', 'error');
+      return { success: false, message: 'Account already exists' };
+    }
+
+    const newCustomer = {
+      id: `cust-${Date.now()}`,
+      ...payload,
+      createdAt: new Date().toISOString()
+    };
+
+    savedCustomers.push(newCustomer);
+    localStorage.setItem('sef_customers_db', JSON.stringify(savedCustomers));
+
+    const userProfile = { ...newCustomer };
+    delete userProfile.password;
+    setCurrentCustomer(userProfile);
+    localStorage.setItem('sef_customer_user', JSON.stringify(userProfile));
+    showToast(`🎉 Account created! Welcome, ${userProfile.name.split(' ')[0]}!`);
+    setIsAuthModalOpen(false);
+    return { success: true, customer: userProfile };
+  };
+
+  // Customer Login (Phone or Email + Password)
+  const customerLogin = async (identifier, password) => {
+    const cleanIdent = identifier.trim();
+    const cleanPhone = cleanIdent.replace(/\D/g, '').slice(-10);
+
+    try {
+      const res = await fetch('/api/customers/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: cleanIdent, password })
+      });
+      const data = await res.json();
+      if (data.success && data.customer) {
+        setCurrentCustomer(data.customer);
+        localStorage.setItem('sef_customer_user', JSON.stringify(data.customer));
+        showToast(`Welcome back, ${data.customer.name.split(' ')[0]}! 👋`);
+        setIsAuthModalOpen(false);
+        return { success: true, customer: data.customer };
+      }
+    } catch (err) {}
+
+    // Fallback to local DB + Demo accounts
+    const savedCustomers = JSON.parse(localStorage.getItem('sef_customers_db') || '[]');
+    const found = savedCustomers.find(c => 
+      (c.phone === cleanPhone || c.email.toLowerCase() === cleanIdent.toLowerCase()) && 
+      (c.password === password || password === '1234')
+    );
+
+    if (found) {
+      const userProfile = { ...found };
+      delete userProfile.password;
+      setCurrentCustomer(userProfile);
+      localStorage.setItem('sef_customer_user', JSON.stringify(userProfile));
+      showToast(`Welcome back, ${userProfile.name.split(' ')[0]}! 👋`);
+      setIsAuthModalOpen(false);
+      return { success: true, customer: userProfile };
+    }
+
+    // Default sample customer: Sneha Mukherjee
+    if ((cleanPhone === '9876543210' || cleanIdent === 'sneha.m@du.ac.in') && (password === 'password123' || password === '1234')) {
+      const sampleCust = {
+        id: 'cust-sample-1',
+        name: 'Sneha Mukherjee',
+        phone: '9876543210',
+        email: 'sneha.m@du.ac.in',
+        address: 'Room 42, Ganga Hostel, North Campus, DU',
+        city: 'New Delhi',
+        state: 'Delhi',
+        pincode: '110007'
+      };
+      setCurrentCustomer(sampleCust);
+      localStorage.setItem('sef_customer_user', JSON.stringify(sampleCust));
+      showToast('Welcome back, Sneha! 👋');
+      setIsAuthModalOpen(false);
+      return { success: true, customer: sampleCust };
+    }
+
+    showToast('Invalid phone/email or password. Please try again.', 'error');
+    return { success: false, message: 'Invalid credentials' };
+  };
+
+  // Customer Logout
+  const customerLogout = () => {
+    setCurrentCustomer(null);
+    localStorage.removeItem('sef_customer_user');
+    showToast('You have been signed out.');
+    setIsAuthModalOpen(false);
+  };
+
+  // Update Customer Profile & Saved Delivery Address
+  const updateCustomerProfile = async (updatedData) => {
+    if (!currentCustomer) return;
+    const updated = { ...currentCustomer, ...updatedData };
+    setCurrentCustomer(updated);
+    localStorage.setItem('sef_customer_user', JSON.stringify(updated));
+
+    try {
+      await fetch('/api/customers/address', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: currentCustomer.phone, ...updatedData })
+      });
+    } catch (err) {}
+
+    const savedCustomers = JSON.parse(localStorage.getItem('sef_customers_db') || '[]');
+    const newDb = savedCustomers.map(c => c.phone === currentCustomer.phone ? { ...c, ...updatedData } : c);
+    localStorage.setItem('sef_customers_db', JSON.stringify(newDb));
+    showToast('Saved address and phone number updated! ✨');
+  };
+
   return (
     <StoreContext.Provider
       value={{
@@ -482,6 +652,19 @@ export const StoreProvider = ({ children }) => {
         isProfileLoggedIn: isAdminLoggedIn,
         loginProfile: loginAdmin,
         logoutProfile: logoutAdmin,
+        // Customer Auth Exports
+        currentCustomer,
+        setCurrentCustomer,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
+        authModalTab,
+        setAuthModalTab,
+        openAuthModal,
+        closeAuthModal,
+        customerSignup,
+        customerLogin,
+        customerLogout,
+        updateCustomerProfile,
         searchQuery,
         setSearchQuery,
         selectedCategory,

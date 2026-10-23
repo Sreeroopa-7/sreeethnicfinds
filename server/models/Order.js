@@ -28,7 +28,7 @@ const OrderSchema = new mongoose.Schema({
   deliveryFee: { type: Number, default: 0 },
   discount: { type: Number, default: 0 },
   totalAmount: { type: Number, required: true },
-  paymentMethod: { type: String, default: 'Cash on Delivery (COD)' },
+  paymentMethod: { type: String, default: 'Online Money Transfer (+91 70128 97623)' },
   status: {
     type: String,
     enum: [

@@ -15,6 +15,7 @@ import CartDrawer from './components/CartDrawer';
 import WishlistDrawer from './components/WishlistDrawer';
 import CheckoutModal from './components/CheckoutModal';
 import AdminDashboard from './components/AdminDashboard';
+import CustomerAuthModal from './components/CustomerAuthModal';
 import WhatsAppFloatingButton from './components/WhatsAppFloatingButton';
 import Toast from './components/Toast';
 
@@ -76,6 +77,7 @@ function MainApp() {
       <WishlistDrawer />
       <CheckoutModal />
       <AdminDashboard />
+      <CustomerAuthModal />
       <Toast />
     </div>
   );

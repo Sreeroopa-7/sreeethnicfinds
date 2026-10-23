@@ -7,6 +7,7 @@ import { connectDB } from './config/db.js';
 import fs from 'fs';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import customerRoutes from './routes/customerRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -28,6 +29,7 @@ app.use('/images', express.static(path.join(rootDir, 'public', 'images')));
 // API Routes
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/customers', customerRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

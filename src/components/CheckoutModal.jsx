@@ -13,7 +13,10 @@ import {
   Printer, 
   ShoppingBag,
   Sparkles,
-  MessageCircle
+  MessageCircle,
+  Copy,
+  Check,
+  Smartphone
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
@@ -37,7 +40,9 @@ export default function CheckoutModal() {
     setIsCheckoutOpen,
     placeOrder,
     lastPlacedOrder,
-    setLastPlacedOrder
+    setLastPlacedOrder,
+    currentCustomer,
+    openAuthModal
   } = useStore();
 
   const [formData, setFormData] = useState({
@@ -46,14 +51,37 @@ export default function CheckoutModal() {
     email: '',
     address: '',
     city: '',
-    state: 'Delhi',
+    state: 'Kerala',
     pincode: '',
     deliveryNotes: ''
   });
 
-  const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery (COD) [Demo]');
+  const [paymentMethod, setPaymentMethod] = useState('Online Money Transfer (+91 70128 97623)');
+  const [copiedPhone, setCopiedPhone] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Auto-fill customer address and phone if logged in
+  useEffect(() => {
+    if (currentCustomer && isCheckoutOpen) {
+      setFormData(prev => ({
+        ...prev,
+        name: currentCustomer.name || prev.name,
+        phone: currentCustomer.phone || prev.phone,
+        email: currentCustomer.email || prev.email,
+        address: currentCustomer.address || prev.address,
+        city: currentCustomer.city || prev.city,
+        state: currentCustomer.state || prev.state || 'Kerala',
+        pincode: currentCustomer.pincode || prev.pincode
+      }));
+    }
+  }, [currentCustomer, isCheckoutOpen]);
+
+  const handleCopyPhone = () => {
+    navigator.clipboard.writeText('7012897623');
+    setCopiedPhone(true);
+    setTimeout(() => setCopiedPhone(false), 2000);
+  };
 
   if (!isCheckoutOpen) return null;
 
@@ -185,29 +213,52 @@ export default function CheckoutModal() {
               </div>
             </div>
 
-            {/* Next Steps Guide */}
-            <div className="max-w-lg mx-auto text-left bg-[#FAF6F0] p-4 rounded-2xl text-xs space-y-1.5 text-[#5C4D4D]">
-              <div className="font-bold text-[#561026] flex items-center gap-1.5">
-                <Truck className="w-4 h-4 text-[#EE7B99]" />
-                What happens next?
+            {/* Online Money Transfer Instructions */}
+            <div className="max-w-lg mx-auto text-left bg-[#FFE6EC]/60 border border-[#EE7B99]/40 p-4 sm:p-5 rounded-2xl text-xs space-y-3 text-[#561026]">
+              <div className="font-bold flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-sm text-[#892B42]">
+                  <Smartphone className="w-4 h-4 text-[#D94B73]" />
+                  Online Money Transfer Details
+                </span>
+                <span className="text-[10px] font-bold bg-[#D94B73] text-white px-2 py-0.5 rounded-full">
+                  No COD
+                </span>
               </div>
-              <p>1. We will pack your pure cotton kurti and dispatch it directly from Chalakuzhy, Thiruvananthapuram within 24 hours.</p>
-              <p>2. A live courier tracking link will be sent to your WhatsApp number (+91 {lastPlacedOrder.customer.phone}).</p>
-              <p>3. If you need any size change upon arrival, our 7-day student exchange is always open!</p>
+              <p className="text-xs text-[#5C4D4D]">
+                Please complete your transfer of <strong className="text-[#892B42] font-bold text-sm">₹{lastPlacedOrder.totalAmount}</strong> to our boutique number via Google Pay, PhonePe, or Paytm:
+              </p>
+              <div className="p-3 bg-white/95 rounded-xl border border-[#F4ACB7]/50 flex items-center justify-between">
+                <div>
+                  <span className="text-[#7A6B6B] block text-[10px]">GPay / PhonePe / Paytm Number:</span>
+                  <span className="font-mono font-bold text-sm text-[#892B42]">+91 70128 97623</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCopyPhone}
+                  className="px-3 py-1.5 bg-[#FFF0F4] hover:bg-[#FFE6EC] text-[#892B42] text-[11px] font-semibold rounded-lg border border-[#F4ACB7]/50 flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                >
+                  {copiedPhone ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedPhone ? 'Copied!' : 'Copy Number'}
+                </button>
+              </div>
+              <div className="text-[11px] text-[#7A6B6B] bg-white/60 p-2.5 rounded-xl border border-[#F4ACB7]/30 space-y-1">
+                <p className="font-semibold text-[#561026]">💬 We will ask and confirm in WhatsApp DM:</p>
+                <p>Our team will message you directly in WhatsApp DM at <strong>+91 {lastPlacedOrder.customer.phone}</strong> to confirm your payment receipt and prepare instant courier dispatch!</p>
+              </div>
             </div>
 
             {/* Actions */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <a
                 href={`https://wa.me/917012897623?text=${encodeURIComponent(
-                  `Hello Sree Ethnic Finds! I just placed an order:\n\nOrder ID: #${lastPlacedOrder.orderId}\nCustomer: ${lastPlacedOrder.customer.name}\nPhone: ${lastPlacedOrder.customer.phone}\nTotal: ₹${lastPlacedOrder.totalAmount}\nPayment: ${lastPlacedOrder.paymentMethod}\nAddress: ${lastPlacedOrder.customer.address}, ${lastPlacedOrder.customer.city}, ${lastPlacedOrder.customer.state} - ${lastPlacedOrder.customer.pincode}`
+                  `Hello Sree Ethnic Finds! I just placed an order:\n\nOrder ID: #${lastPlacedOrder.orderId}\nCustomer: ${lastPlacedOrder.customer.name}\nPhone: ${lastPlacedOrder.customer.phone}\nTotal Amount: ₹${lastPlacedOrder.totalAmount}\nPayment Method: Online Transfer to +91 70128 97623\n\nI am contacting you to complete my online payment in DM!`
                 )}`}
                 target="_blank"
                 rel="noreferrer"
-                className="px-5 py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-semibold rounded-full flex items-center gap-1.5 shadow-md transition-all"
+                className="px-6 py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold rounded-full flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
               >
-                <MessageCircle className="w-3.5 h-3.5" />
-                Confirm on WhatsApp
+                <MessageCircle className="w-4 h-4" />
+                Message Us in WhatsApp DM to Pay
               </a>
 
               <button
@@ -249,6 +300,37 @@ export default function CheckoutModal() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+
+              {/* Customer Account Auto-Fill Banner */}
+              {currentCustomer ? (
+                <div className="p-3 bg-[#D8F3DC]/70 border border-[#2B9348]/40 rounded-2xl flex items-center justify-between text-xs text-[#1B4332]">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#2B9348] shrink-0" />
+                    <span>Logged in as <strong>{currentCustomer.name}</strong> • Saved address auto-filled</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => openAuthModal('profile')}
+                    className="text-[11px] font-bold text-[#1B4332] underline hover:text-black cursor-pointer"
+                  >
+                    Edit Address
+                  </button>
+                </div>
+              ) : (
+                <div className="p-3 bg-[#FFE6EC]/60 border border-[#EE7B99]/40 rounded-2xl flex items-center justify-between text-xs text-[#892B42]">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#D94B73] shrink-0" />
+                    <span>Have an account? Log in to auto-fill your saved address & phone number.</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => openAuthModal('login')}
+                    className="px-3 py-1 bg-white border border-[#EE7B99]/50 rounded-full font-bold text-xs hover:bg-[#FFF0F4] text-[#561026] shadow-2xs cursor-pointer shrink-0"
+                  >
+                    Sign In
+                  </button>
+                </div>
+              )}
               
               {/* Customer Contact */}
               <div className="space-y-3">
@@ -391,50 +473,64 @@ export default function CheckoutModal() {
 
               {/* Payment Mode Selection */}
               <div className="space-y-3 pt-2 border-t border-[#F4ACB7]/30">
-                <h4 className="text-xs font-bold text-[#561026] uppercase tracking-wider flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#EE7B99]" />
-                  3. Payment Method (Prototype Mode)
-                </h4>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <label className={`p-3.5 rounded-2xl border cursor-pointer flex items-center gap-3 transition-all ${
-                    paymentMethod.includes('COD') ? 'border-[#D94B73] bg-[#FFE6EC]/40 ring-1 ring-[#EE7B99]' : 'border-[#F4ACB7]/40 bg-white'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="Cash on Delivery (COD) [Demo]"
-                      checked={paymentMethod.includes('COD')}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="accent-[#D94B73]"
-                    />
-                    <div>
-                      <div className="text-xs font-bold text-[#561026]">Cash on Delivery (COD)</div>
-                      <div className="text-[10px] text-[#7A6B6B]">Pay cash or scan QR when courier arrives</div>
-                    </div>
-                  </label>
-
-                  <label className={`p-3.5 rounded-2xl border cursor-pointer flex items-center gap-3 transition-all ${
-                    paymentMethod.includes('UPI') ? 'border-[#D94B73] bg-[#FFE6EC]/40 ring-1 ring-[#EE7B99]' : 'border-[#F4ACB7]/40 bg-white'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="UPI Instant Simulation [Demo]"
-                      checked={paymentMethod.includes('UPI')}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="accent-[#D94B73]"
-                    />
-                    <div>
-                      <div className="text-xs font-bold text-[#561026]">UPI Demo Simulation</div>
-                      <div className="text-[10px] text-[#7A6B6B]">GPay, PhonePe, Paytm simulation</div>
-                    </div>
-                  </label>
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-[#561026] uppercase tracking-wider flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#EE7B99]" />
+                    3. Payment Method (Online Transfer Only)
+                  </h4>
+                  <span className="text-[10px] font-bold text-[#D94B73] bg-[#FFE6EC] px-2.5 py-0.5 rounded-full border border-[#F4ACB7]/50">
+                    No Cash on Delivery
+                  </span>
                 </div>
 
-                <p className="text-[10px] text-[#892B42] bg-[#FFF5F7] p-2 rounded-xl border border-[#F4ACB7]/30">
-                  🔒 Note: In accordance with security best practices, real payment card details are never requested without a verified Indian payment gateway.
-                </p>
+                <div className="p-4 rounded-2xl border border-[#D94B73] bg-[#FFE6EC]/40 ring-1 ring-[#EE7B99] space-y-3">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="Online Money Transfer (+91 70128 97623)"
+                      checked={true}
+                      readOnly
+                      className="accent-[#D94B73] mt-1"
+                    />
+                    <div className="flex-1">
+                      <div className="text-xs font-bold text-[#561026] flex items-center gap-2">
+                        <span>Online Money Transfer to Mobile Number</span>
+                        <span className="text-[10px] bg-[#2B9348] text-white px-2 py-0.5 rounded-full font-semibold">GPay • PhonePe • Paytm</span>
+                      </div>
+                      <div className="text-[11px] text-[#7A6B6B] mt-0.5">
+                        Direct transfer to our boutique number: <strong className="text-[#892B42] font-mono font-bold text-xs">+91 70128 97623</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Transfer Details Card */}
+                  <div className="p-3 bg-white/95 rounded-xl border border-[#F4ACB7]/40 text-xs space-y-2">
+                    <div className="flex justify-between items-center text-[11px]">
+                      <div>
+                        <span className="text-[#7A6B6B] block text-[10px]">Payment Receiver Number:</span>
+                        <span className="font-mono font-bold text-sm text-[#561026]">+91 70128 97623</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleCopyPhone}
+                        className="px-3 py-1.5 bg-[#FFF0F4] hover:bg-[#FFE6EC] text-[#892B42] text-[11px] font-semibold rounded-lg border border-[#F4ACB7]/50 flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                      >
+                        {copiedPhone ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedPhone ? 'Copied Number!' : 'Copy Number'}
+                      </button>
+                    </div>
+
+                    <div className="text-[11px] text-[#5C4D4D] pt-2 border-t border-[#F4ACB7]/20 space-y-1">
+                      <p className="font-semibold text-[#892B42]">
+                        💬 Note: We will ask you and confirm payment directly in WhatsApp DM!
+                      </p>
+                      <p className="text-[10px] text-[#7A6B6B]">
+                        No Cash on Delivery. Once you place the order, our team connects with you directly in DM (+91 70128 97623) to confirm payment and prepare your pure cotton kurti for dispatch.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Order Summary Box */}
@@ -471,10 +567,10 @@ export default function CheckoutModal() {
                 className="w-full py-4 bg-[#561026] hover:bg-[#751734] disabled:opacity-50 text-white font-semibold text-sm rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
               >
                 {isSubmitting ? (
-                  <span>Securing Order...</span>
+                  <span>Submitting Order...</span>
                 ) : (
                   <>
-                    <span>Confirm Order • ₹{cartTotal}</span>
+                    <span>Place Order & Pay Online • ₹{cartTotal}</span>
                     <ArrowRight className="w-4 h-4 text-[#FFE6EC]" />
                   </>
                 )}

@@ -69,7 +69,7 @@ export default function ProductModal() {
       pincode: pincode.trim(),
       dateRange: `${minDate.toLocaleDateString('en-IN', options)} - ${maxDate.toLocaleDateString('en-IN', options)}`,
       speed: "Fast Hub Dispatch (within 24 hours)",
-      codAvailable: true
+      onlineTransfer: true
     });
   };
 
@@ -331,7 +331,7 @@ export default function ProductModal() {
                     Estimated Delivery: {deliveryEstimate.dateRange}
                   </div>
                   <div className="text-[11px] text-[#2D6A4F]">
-                    {deliveryEstimate.speed} • Cash on Delivery Available
+                    {deliveryEstimate.speed} • Online Transfer (+91 70128 97623 / WhatsApp DM)
                   </div>
                 </div>
               )}
