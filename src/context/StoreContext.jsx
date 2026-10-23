@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { SAMPLE_PRODUCTS } from '../data/products';
+import { getImagePath } from '../utils/imageHelper';
 
 const StoreContext = createContext();
 
@@ -9,6 +10,15 @@ export const useStore = () => {
     throw new Error('useStore must be used within a StoreProvider');
   }
   return context;
+};
+
+// Helper to ensure all image URLs work across subpath and root deployments
+const normalizeProduct = (p) => {
+  if (!p) return p;
+  return {
+    ...p,
+    images: (p.images || []).map(img => getImagePath(img))
+  };
 };
 
 // Initial sample orders for Sree Ethnic Finds boutique
@@ -84,14 +94,27 @@ const INITIAL_SAMPLE_ORDERS = [
 export const StoreProvider = ({ children }) => {
   // Products state (persisted in localStorage or fetched from API)
   const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('sef_products_v2');
-    return saved ? JSON.parse(saved) : SAMPLE_PRODUCTS;
+    try {
+      const saved = localStorage.getItem('sef_products_v2');
+      const list = saved ? JSON.parse(saved) : SAMPLE_PRODUCTS;
+      return list.map(normalizeProduct);
+    } catch {
+      return SAMPLE_PRODUCTS.map(normalizeProduct);
+    }
   });
 
   // Cart state
   const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('sef_cart');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('sef_cart');
+      const list = saved ? JSON.parse(saved) : [];
+      return list.map(item => ({
+        ...item,
+        product: normalizeProduct(item.product)
+      }));
+    } catch {
+      return [];
+    }
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
 

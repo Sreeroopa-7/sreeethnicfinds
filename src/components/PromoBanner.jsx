@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Sparkles, BookOpen, HeartHandshake } from 'lucide-react';
+import { getImagePath } from '../utils/imageHelper';
 
 export default function PromoBanner({ onExplore }) {
   return (
@@ -59,7 +60,7 @@ export default function PromoBanner({ onExplore }) {
           {/* Right Image Container */}
           <div className="lg:col-span-5 h-64 sm:h-80 lg:h-full relative overflow-hidden">
             <img
-              src="/images/promo_wardrobe.jpg"
+              src={getImagePath('/images/promo_wardrobe.jpg')}
               alt="Aesthetic college wardrobe with pastel Indian kurtis"
               className="w-full h-full object-cover object-center"
               loading="lazy"

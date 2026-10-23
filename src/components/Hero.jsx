@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Sparkles, Heart, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
+import { getImagePath } from '../utils/imageHelper';
 
 export default function Hero({ onShopClick }) {
   return (
@@ -96,7 +97,7 @@ export default function Hero({ onShopClick }) {
               {/* Main Image Frame */}
               <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white group">
                 <img
-                  src="/images/hero.jpg"
+                  src={getImagePath('/images/hero.jpg')}
                   alt="Young Indian college girl wearing stylish floral kurti on campus"
                   className="w-full h-[460px] sm:h-[520px] object-cover object-top transform group-hover:scale-105 transition-transform duration-700"
                   loading="eager"
