@@ -101,7 +101,7 @@ export default function Hero({ onShopClick }) {
                   alt="Young Indian college girl wearing stylish floral kurti on campus"
                   className="w-full h-[460px] sm:h-[520px] object-cover object-top transform group-hover:scale-105 transition-transform duration-700"
                   loading="eager"
-                  fetchPriority="high"
+                  fetchpriority="high"
                 />
                 
                 {/* Image Overlay Gradient */}
